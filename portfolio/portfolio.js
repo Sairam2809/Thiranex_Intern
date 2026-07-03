@@ -1,6 +1,6 @@
 /* ============================================
-   Portfolio — Semantic HTML5 & Accessible
-   Interactive JavaScript Functionality
+   Portfolio — Advanced Interactive JavaScript
+   Theme System · Navigation · Animations
    ============================================ */
 
 // ─── DOM References ──────────────────────────────────────────
@@ -13,7 +13,95 @@ const DOM = {
     filterBtns:     document.querySelectorAll('.filter-btn'),
     projectCards:   document.querySelectorAll('.project-card'),
     projectsGrid:   document.getElementById('projects-grid'),
+    themeToggle:    document.getElementById('theme-toggle'),
+    siteHeader:     document.querySelector('.site-header'),
 };
+
+
+// ─── Theme System ────────────────────────────────────────────
+
+/**
+ * Gets the user's preferred theme.
+ * Priority: localStorage > OS preference > 'dark' default.
+ * @returns {'dark'|'light'}
+ */
+function getPreferredTheme() {
+    const stored = localStorage.getItem('portfolio-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+
+    // Detect OS preference
+    if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+        return 'light';
+    }
+    return 'dark';
+}
+
+/**
+ * Applies the given theme to the document.
+ * Updates data-theme attribute, ARIA label, and localStorage.
+ * @param {'dark'|'light'} theme
+ */
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('portfolio-theme', theme);
+
+    // Update toggle button ARIA
+    if (DOM.themeToggle) {
+        const label = theme === 'dark'
+            ? 'Switch to light mode'
+            : 'Switch to dark mode';
+        DOM.themeToggle.setAttribute('aria-label', label);
+    }
+}
+
+/**
+ * Toggles between dark and light themes.
+ */
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+}
+
+// Initialize theme immediately (before paint)
+applyTheme(getPreferredTheme());
+
+// Theme toggle click
+if (DOM.themeToggle) {
+    DOM.themeToggle.addEventListener('click', toggleTheme);
+}
+
+// Listen for OS theme changes
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    // Only auto-switch if user hasn't manually set a preference
+    const stored = localStorage.getItem('portfolio-theme');
+    if (!stored) {
+        applyTheme(e.matches ? 'light' : 'dark');
+    }
+});
+
+
+// ─── Header Scroll Effect ────────────────────────────────────
+
+/**
+ * Adds a 'scrolled' class to the header when the user scrolls down,
+ * giving it an elevated shadow effect.
+ */
+function initHeaderScroll() {
+    if (!DOM.siteHeader) return;
+
+    const onScroll = () => {
+        if (window.scrollY > 20) {
+            DOM.siteHeader.classList.add('scrolled');
+        } else {
+            DOM.siteHeader.classList.remove('scrolled');
+        }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // Run once on init
+}
+
 
 // ─── Mobile Navigation ───────────────────────────────────────
 
@@ -347,7 +435,7 @@ if (DOM.filterBtns && DOM.filterBtns.length > 0) {
 
 /**
  * Uses IntersectionObserver to trigger fade-in animations
- * when elements scroll into view.
+ * when elements scroll into view. Also animates skill bars.
  */
 function initScrollAnimations() {
     // Respect prefers-reduced-motion
@@ -371,6 +459,40 @@ function initScrollAnimations() {
         el.style.animationPlayState = 'paused';
         observer.observe(el);
     });
+
+    // Skill bar animation
+    const skillObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const fill = entry.target;
+                    const targetWidth = fill.style.width || fill.getAttribute('data-width');
+                    if (targetWidth) {
+                        // Reset then animate
+                        fill.style.width = '0%';
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                fill.style.width = targetWidth;
+                                fill.classList.add('animated');
+                            });
+                        });
+                    }
+                    skillObserver.unobserve(fill);
+                }
+            });
+        },
+        { threshold: 0.3 }
+    );
+
+    document.querySelectorAll('.skill-bar-fill').forEach(fill => {
+        // Store the target width and reset
+        const inlineWidth = fill.style.width;
+        if (inlineWidth) {
+            fill.setAttribute('data-width', inlineWidth);
+            fill.style.width = '0%';
+        }
+        skillObserver.observe(fill);
+    });
 }
 
 // ─── Initialization ──────────────────────────────────────────
@@ -378,6 +500,7 @@ function initScrollAnimations() {
 function init() {
     initParticles();
     initScrollAnimations();
+    initHeaderScroll();
 }
 
 // Start the app when DOM is ready
