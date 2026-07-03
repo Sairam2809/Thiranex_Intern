@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow — Interactive State-Driven To-Do</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-app" class="skip-link">Skip to main content</a>
+
+    <!-- Background Decoration Particles -->
+    <div class="particles-bg">
+        <div class="particle" style="width: 80px; height: 80px; left: 10%; animation-duration: 25s; opacity: 0.15;"></div>
+        <div class="particle" style="width: 120px; height: 120px; right: 15%; animation-duration: 35s; opacity: 0.1;"></div>
+        <div class="particle" style="width: 60px; height: 60px; left: 50%; top: 60%; animation-duration: 20s; opacity: 0.08;"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="app-container" id="main-app">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">T</div>
+                <div class="brand-info">
+                    <h1>TaskFlow</h1>
+                    <p class="brand-tagline">Manage your tasks elegantly</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <!-- Theme Toggle Button -->
+                <button class="theme-toggle" id="theme-toggle-btn" aria-label="Toggle Light/Dark Theme" title="Toggle Light/Dark Theme">
+                    <span class="icon-moon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </span>
+                    <span class="icon-sun">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    </span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="stats-card" aria-label="Task progress statistics">
+            <div class="stats-info">
+                <div>
+                    <h2 class="stats-title">Task Progress</h2>
+                    <p class="stats-subtitle" id="stats-subtitle-text">0 of 0 tasks completed</p>
+                </div>
+                <div class="stats-percentage" id="stats-percentage-text">0%</div>
+            </div>
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar-fill" style="width: 0%"></div>
+            </div>
+        </section>
+
+        <!-- Task Creator Form -->
+        <section class="creator-section" aria-labelledby="form-title">
+            <h2 id="form-title" class="sr-only">Add a new task</h2>
+            <form id="todo-form" class="todo-form">
+                <div class="input-group">
+                    <input type="text" id="todo-input" placeholder="What needs to be done?" autocomplete="off" required aria-label="New task content">
+                    <button type="submit" class="submit-btn" aria-label="Add Task">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Add Task</span>
+                    </button>
+                </div>
+                
+                <!-- Advanced Meta Fields (Priority & Category) -->
+                <div class="meta-inputs">
+                    <div class="meta-group">
+                        <label for="todo-priority">Priority</label>
+                        <select id="todo-priority" class="select-input">
+                            <option value="low">Low Priority</option>
+                            <option value="medium" selected>Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                    </div>
+                    <div class="meta-group">
+                        <label for="todo-category">Category</label>
+                        <select id="todo-category" class="select-input">
+                            <option value="work" selected>Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="fitness">Fitness</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Task List Section -->
+        <section class="list-section">
+            <!-- Filter Bar and Quick Actions -->
+            <div class="controls-bar">
+                <!-- Search Bar -->
+                <div class="search-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Search tasks..." aria-label="Search tasks">
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-controls">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+            </div>
+
+            <!-- Clear Action bar -->
+            <div class="actions-bar">
+                <span class="items-left" id="items-left-text">0 active tasks</span>
+                <button class="clear-completed-btn" id="clear-completed-btn">Clear Completed</button>
+            </div>
+
+            <!-- Todo Items List -->
+            <ul class="todo-list" id="todo-list" aria-label="Tasks list">
+                <!-- Dynamically injected from JS -->
+            </ul>
+
+            <!-- Empty State Container -->
+            <div class="empty-state" id="empty-state">
+                <div class="empty-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line><line x1="9" y1="11" x2="10" y2="11"></line><line x1="9" y1="18" x2="11" y2="18"></line></svg>
+                </div>
+                <h3>No tasks found</h3>
+                <p>Add a new task or change your filter options to get started.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>TaskFlow &copy; 2026. Made with ❤️ for Thiranex Intern.</p>
+    </footer>
+
+    <!-- JS Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
